@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <table border="1">
+        {% for article in article_list %}
+            <tr>
+                <td>{{ article.title }}</td>
+                <td>{{ article.content }}</td>
+                <td>{{ article.url }}</td>
+                <td><img style="height:80px" src="{{ article.portal.url }}"/></td>
+                <td>{{ article.author }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
