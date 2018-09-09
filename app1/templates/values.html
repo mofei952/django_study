@@ -1,0 +1,14 @@
+{% load extra_filters %}
+<ul>
+{{ 'as cc' | cut:' ' }}
+{{ hello }}
+{{ hello | escape}}
+{{ hello | safe}}
+{% autoescape off %}
+    {{ hello }}
+{% endautoescape %}
+{{ hello | safe | add:'2' }}
+{% for d in data_list %}
+    <li> {{ d | get_attr:'title' }} </li>
+{% endfor %}
+</ul>

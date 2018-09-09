@@ -4,37 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{% static "assets/css/amazeui.min.css" %}">
-    <link rel="stylesheet" href="{% static "assets/css/app.css" %}">
+{#    <link rel="stylesheet" href="{% static "assets/css/app.css" %}">#}
     <style>
-        .am-g {
-          margin: 0 auto;
-          width: 100%;
+        .am-modal-dialog{
+            background: white;
         }
     </style>
+    <script src="{% static "js/jquery-3.3.1.js" %}"></script>
+    <script src="{% static "assets/js/amazeui.js" %}"></script>
+    <script>
+        $(function () {
+            $('#addArticleBtn').click(function () {
+                $('.am-modal-bd').load('/app1/addarticle')
+            })
+            $('.am-modal-dialog').on('click', '#addBtn', function () {
+                title = $('.am-modal-dialog').find('#title').val()
+                content = $('.am-modal-dialog').find('#content').val()
+                //console.log(title, content)
+                if(!title){
+
+                }
+                if(!content){
+
+                }
+                $.post('/app1/', {title: title, content: content}, function () {
+
+                }, 'json')
+            })
+        })
+    </script>
     <title>Title</title>
 </head>
 <body>
-    <table border="1" class="am-table am-table-bordered am-table-striped">
-        <thead>
-            <tr>
-                <th>sdsd</th>
-                <th>sdsd</th>
-                <th>sdsd</th>
-                <th>sdsd</th>
-                <th>sdsd</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for article in article_list %}
-            <tr>
-                <td>{{ article.title }}</td>
-                <td>{{ article.content }}</td>
-                <td>{{ article.url }}</td>
-                <td><img style="height:80px" src="{{ article.portal.url }}"/></td>
-                <td>{{ article.author }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% load extra_tags %}
+    {% date '%Y-%m-%d %I:%M %p' %}
+    {% get_current_time '%Y-%m-%d' %}
+    {% values article_list 'title' %}
+
+    <div class="am-margin am-cf">
+        <button id="addArticleBtn" class="am-btn am-btn-primary am-radius am-fr"
+                data-am-modal="{target: '#doc-modal-1', closeViaDimmer: 0, width: 800, height: 450}">
+            <i class="am-icon-plus"></i>
+            添加
+        </button>
+    </div>
+    <div class="am-margin">
+        <table border="1" class="am-table am-table-bordered am-table-striped">
+            <thead>
+                <tr>
+                    <th>sdsd</th>
+                    <th>sdsd</th>
+                    <th>sdsd</th>
+                    <th>sdsd</th>
+                    <th>sdsd</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in article_list %}
+                <tr>
+                    <td>{{ article.title }}</td>
+                    <td>{{ article.content }}</td>
+                    <td>{{ article.url }}</td>
+                    <td><img style="height:80px" src="{{ article.portal.url }}"/></td>
+                    <td>{{ article.author }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="am-modal am-modal-no-btn" tabindex="-1" id="doc-modal-1">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">
+                添加文章
+                <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd">
+                Modal 内容。本 Modal 无法通过遮罩层关闭。
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

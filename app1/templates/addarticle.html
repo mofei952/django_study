@@ -1,0 +1,44 @@
+<style>
+    label {
+        width: 160px;
+    }
+    .bd{
+        width: 100%;
+        padding: 10px 30px;
+        text-align: left;
+    }
+    .row {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .btn-row{
+        margin-top: 20px;
+        padding: 10px 10px;
+        background: #f8f8f8;
+        border: 1px solid #eee;
+    }
+    input, textarea{
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    textarea{
+        max-width: 518px;
+        max-height: 120px;
+    }
+</style>
+<div class="bd">
+    <div class="row">
+        <label>标题:</label>
+        <input id="title"/>
+    </div>
+    <div class="row">
+        <label>内容:</label>
+        <textarea id="content" rows="10" cols="60"></textarea>
+    </div>
+    <div class="am-cf btn-row">
+        <button id="addBtn" class="am-btn am-btn-primary am-radius am-fr">
+            <i class="am-icon-plus"></i>
+            添加
+        </button>
+    </div>
+</div>

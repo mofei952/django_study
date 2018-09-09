@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>连连看</title>
+    <link rel="stylesheet" href="{% static "assets/css/amazeui.min.css" %}">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        #canvasDiv {
+            /*display: inline-block;*/
+            margin: 16px auto;
+            padding: 10px;
+            background-color: #ccc;
+        }
+    </style>
+    <script src={% static "js/jquery-3.3.1.js" %}></script>
+    <script src="{% static "js/llk.js" %}"></script>
+</head>
+<body>
+<div>
+    <div id="menu" class="am-margin am-fr">
+        <button id="addArticleBtn" class="am-btn am-btn-primary am-radius">
+            <i class="am-icon-plus"></i>
+            排行榜
+        </button>
+    </div>
+    <div id="canvasDiv">
+        <canvas id="link"></canvas>
+    </div>
+</div>
+</body>
+</html>

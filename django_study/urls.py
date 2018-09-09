@@ -16,16 +16,20 @@ Including another URLconf
 from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
+import app1
 from app1 import views
 from django_study import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(r'hello/', views.hello),
-    url(r'^hello/(\d+)', views.hello2),
-    url(r'^articlelist/', views.articlelist),
+    url(r'^app1/', include("app1.urls")),
+    url(r'^game/', include("game.urls")),
+
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'app1.views.page_not_found'

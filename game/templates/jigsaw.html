@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>拼图</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body,html{
+            text-align: center;
+            height: 100%;
+            overflow: hidden;
+        }
+        #level-info{
+            margin-bottom: 40px;
+        }
+        #canvas-div{
+            display: inline-block;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #ccc;
+        }
+        #small_image{
+            position: absolute;
+            vertical-align: top;
+            width: 300px;
+            margin-left: 30px;
+            margin-top: 200px;
+        }
+    </style>
+    <script src={% static "js/jquery-3.3.1.js" %}></script>
+    <script>
+        $(function () {
+            // 小图之间的间距(px)
+            var space = 5
+            // 小图的位置 二维数组
+            var arr = []
+            // 关卡等级
+            var level = 0
+            // 关卡对应的 行列数 [[3, 3]]代表一共1关，第一关行列数都为3
+            var row_col_list = [[3, 3], [5, 5], [7, 7], [9, 9], [11, 11]]
+            // 原图宽高
+            var image_width, image_height
+            // 显示的图片 宽高
+            var display_image_height, display_image_width
+            // canvas的宽高 = 显示的图片宽高 + 中间的间距
+            var canvas_width, canvas_height
+            // 是否过关
+            var pass = false
+            // 空白位置
+            var empty_i, empty_j
+
+            // 显示图片高度 不要超过整个屏幕高度
+            display_image_height = $('body').height() - 400
+
+            // canvas初始化
+            var canvas=document.getElementById('jigsaw');
+            var ctx=canvas.getContext('2d');
+
+            function move(i, j) {
+                if(i < 0 || i >= row || j < 0 || j >= col){
+                    return false
+                }
+                if(arr[i][j] == null){
+                    return false
+                }
+                i_diff = Math.abs(i-empty_i)
+                j_diff = Math.abs(j-empty_j)
+
+                if(i_diff == 1 && j_diff == 0 || i_diff == 0 && j_diff == 1){
+                    temp = arr[i][j]
+                    arr[i][j] = arr[empty_i][empty_j]
+                    arr[empty_i][empty_j] = temp
+
+                    empty_i = i
+                    empty_j = j
+                    return true
+                }
+                return false
+            }
+
+            function paint(aa) {
+                if(!aa){
+                    aa = arr
+                    ctx.fillStyle='#ccc';
+                    ctx.fillRect(0, 0, $('#jigsaw').width(), $('#jigsaw').height());
+                }
+                console.log(aa)
+                for(var i = 0; i < aa.length; i++){
+                    if(typeof(aa[i]) == "number"){
+                        paint_one(parseInt(aa[i]/row), aa[i]%row)
+                    }else{
+                        for(var j = 0; j < aa[i].length; j++){
+                            paint_one(i, j)
+                        }
+                    }
+
+                }
+            }
+
+            function paint_one(i, j) {
+                image = document.getElementById('image')
+
+                target_x = i*(display_image_small_width+space)
+                target_y = j*(display_image_small_height+space)
+//                    console.log(src_x, target_x, src_y, target_y)
+
+                console.log(target_x, target_y)
+                if(arr[i][j] == null){
+                    ctx.fillStyle='#ccc';
+                    ctx.fillRect(target_x-1, target_y-1, display_image_small_width+2, display_image_small_height+2);
+                }else{
+                    index = arr[i][j]
+                    ii = parseInt(index/row)
+                    jj = index%row
+                    src_x = ii*image_small_width
+                    src_y = jj*image_small_height
+                    ctx.drawImage(image, src_x, src_y, image_small_width, image_small_height,
+                        target_x, target_y, display_image_small_width, display_image_small_height);
+                }
+
+            }
+
+            function init() {
+                // 加载图片
+                pic_url = '/static/image/jigsaw/jigsaw'+(level+1)+'.jpg'
+                $('#image').attr('src', pic_url)
+                $('#small_image').attr('src', pic_url)
+
+                var img =new Image();
+                img.onload =function(){
+                    img.onload =null;
+                    callback(img);
+                }
+                img.src = pic_url;
+            }
+            init()
+
+            function init_data() {
+                // 获取当前level的 行 列
+                if(level >= row_col_list.length){
+                    return
+                }
+                row = row_col_list[level][0]
+                col = row_col_list[level][1]
+
+                // 计算canvas 宽高
+                console.log(display_image_width)
+                canvas_width = display_image_width + (row-1) * space
+                canvas_height = display_image_height + (col-1) * space
+
+                // 改变canvas的宽高
+                $('#jigsaw').attr('width', canvas_width)
+                $('#jigsaw').attr('height', canvas_height)
+                $('#canvas-div').css('width', canvas_width+20)
+                $('#canvas-div').css('height', canvas_height+20)
+
+                // 计算小图在原图中的宽高
+                image_small_width = image_width/row
+                image_small_height = image_height/col
+
+                // 计算小图在显示图中的宽高
+                display_image_small_width = display_image_width/row
+                display_image_small_height = display_image_height/col
+
+                // 初始化数组
+                arr = []
+                for(var i = 0; i < row; i++) {
+                    arr.push([])
+                    for (var j = 0; j < col; j++) {
+                        arr[i].push(i*row+j)
+                    }
+                }
+
+                // 最后一格置为空
+                arr[row-1][col-1] = null
+                empty_i = row-1
+                empty_j = col-1
+
+                // 打乱
+                for(var i = 0; i < Math.round((level+1), 3)*100; i++){
+                    var diff = [[0, -1], [-1, 0], [0, 1], [1, 0]]
+                    var ii = parseInt(Math.random()* 4)
+                    var count = parseInt(Math.random()* (ii<2?row:col))
+//                    console.log(ii)
+                    for(var j = 0; j < count; j++){
+                        if(!move(empty_i+diff[ii][0], empty_j+diff[ii][1])){
+                            break
+                        }
+                    }
+//                    console.log(arr)
+                }
+
+                paint()
+            }
+
+            function callback(image) {
+                // 获取原图宽高
+                image_width = image.width
+                image_height = image.height
+
+                // 显示图片的宽
+                display_image_width = image_width*display_image_height/image_height
+
+                init_data()
+            }
+
+            function is_win() {
+                for(var i = 0; i < row; i++) {
+                    for (var j = 0; j < col; j++) {
+                        if(arr[i][j] == null){
+                            continue
+                        }
+                        if(arr[i][j] != i*row+j){
+                            return false
+                        }
+                    }
+                }
+                return true
+            }
+
+            $('#jigsaw').click(function () {
+                if(level >= row_col_list.length){
+                    return
+                }
+                if(pass){
+                    init()
+                    $('#level').text(level+1)
+                    pass = false
+                    return
+                }
+                canvas = $('#jigsaw')[0]
+                var x = event.pageX - canvas.getBoundingClientRect().left;
+                var y = event.pageY - canvas.getBoundingClientRect().top;
+                i = parseInt(x / (display_image_small_width + space))
+                if (x >= (i+1)*(display_image_small_width + space) - space){
+                    return
+                }
+                j = parseInt(y / (display_image_small_height + space))
+                if (y >= (j+1)*(display_image_small_height + space) - space){
+                    return
+                }
+//                console.log(i, j)
+                console.log(arr)
+                // old_empty
+                old_empty_i = empty_i, old_empty_j = empty_j
+                console.log(old_empty_i, old_empty_j)
+                if(move(i, j)){
+                    console.log(old_empty_i, old_empty_j)
+                    paint([i*row+j, old_empty_i*row+old_empty_j])
+//                    paint()
+                }
+
+                if(is_win()){
+                    console.log('胜利')
+                    level++
+                    ctx.font="50px Verdana";
+                    ctx.fillStyle='#f61234';
+                    if(row_col_list.length == level){
+                        ctx.fillText("通关", canvas_width/2-50, canvas_height/2-10);
+                    }else{
+                        ctx.fillText("过关,点击继续", canvas_width/2-150, canvas_height/2-10);
+                    }
+                    pass = true
+                }
+            })
+
+            $('#change, #continue').click(function () {
+                init()
+                $('#level').text(level+1)
+            })
+        })
+    </script>
+</head>
+<body>
+    <div id="level-info">
+        <span>第</span>
+        <span id="level">1</span>
+        <span>关</span>
+    </div>
+    <div>
+        <div id="canvas-div">
+            <canvas id="jigsaw"></canvas>
+        </div>
+        <img id="small_image"/>
+    </div>
+    <div style="visibility:hidden;">
+        <img id="image"/>
+    </div>
+</body>
+</html>
